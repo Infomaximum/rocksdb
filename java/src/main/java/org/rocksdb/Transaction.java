@@ -129,11 +129,12 @@ public class Transaction extends RocksObject {
    *     for the transaction
    *
    */
-  public void setSnapshotOnNextOperation(
+  // TODO: не компилится
+  /*public void setSnapshotOnNextOperation(
       final AbstractTransactionNotifier transactionNotifier) {
     assert(isOwningHandle());
     setSnapshotOnNextOperation(nativeHandle_, transactionNotifier.nativeHandle_);
-  }
+  }*/
 
  /**
   * Returns the Snapshot created by the last call to {@link #setSnapshot()}.
@@ -1263,13 +1264,14 @@ public class Transaction extends RocksObject {
    *
    * @return The write batch
    */
-  public WriteBatchWithIndex getWriteBatch() {
+  // TODO: не компилится
+  /*public WriteBatchWithIndex getWriteBatch() {
     assert(isOwningHandle());
     final WriteBatchWithIndex writeBatchWithIndex =
         new WriteBatchWithIndex(getWriteBatch(nativeHandle_));
     writeBatchWithIndex.disOwnNativeHandle(); //TODO(AR) are the ownership semantics correct here?
     return writeBatchWithIndex;
-  }
+  }*/
 
   /**
    * Change the value of {@link TransactionOptions#getLockTimeout()}
@@ -1287,13 +1289,14 @@ public class Transaction extends RocksObject {
    *
    * @return the WriteOptions that will be used
    */
-  public WriteOptions getWriteOptions() {
+  // TODO: не компилится
+  /*public WriteOptions getWriteOptions() {
     assert(isOwningHandle());
     final WriteOptions writeOptions =
         new WriteOptions(getWriteOptions(nativeHandle_));
     writeOptions.disOwnNativeHandle(); //TODO(AR) are the ownership semantics correct here?
     return writeOptions;
-  }
+  }*/
 
   /**
    * Reset the WriteOptions that will be used during {@link #commit()}.
