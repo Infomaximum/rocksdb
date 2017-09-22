@@ -21,6 +21,8 @@ set(JNI_NATIVE_SOURCES
         rocksjni/lru_cache.cc
         rocksjni/memtablejni.cc
         rocksjni/merge_operator.cc
+		rocksjni/optimistic_transaction_db.cc
+		rocksjni/optimistic_transaction_options.cc
         rocksjni/options.cc
         rocksjni/ratelimiterjni.cc
         rocksjni/remove_emptyvalue_compactionfilterjni.cc
@@ -33,7 +35,13 @@ set(JNI_NATIVE_SOURCES
         rocksjni/statistics.cc
         rocksjni/statisticsjni.cc
         rocksjni/table.cc
+		rocksjni/transaction.cc
+		rocksjni/transaction_db.cc
+		rocksjni/transaction_db_options.cc
         rocksjni/transaction_log.cc
+		rocksjni/transaction_notifier.cc
+		rocksjni/transaction_notifier_jnicallback.cc
+		rocksjni/transaction_options.cc
         rocksjni/ttl.cc
         rocksjni/write_batch.cc
         rocksjni/write_batch_test.cc
