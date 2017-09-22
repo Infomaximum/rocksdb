@@ -129,7 +129,7 @@ public class Transaction extends RocksObject {
    *     for the transaction
    *
    */
-  // TODO: не компилится
+  // TODO: AbstractTransactionNotifier not implemented
   /*public void setSnapshotOnNextOperation(
       final AbstractTransactionNotifier transactionNotifier) {
     assert(isOwningHandle());
@@ -1264,7 +1264,7 @@ public class Transaction extends RocksObject {
    *
    * @return The write batch
    */
-  // TODO: не компилится
+  // TODO: AbstractTransactionNotifier not implemented
   /*public WriteBatchWithIndex getWriteBatch() {
     assert(isOwningHandle());
     final WriteBatchWithIndex writeBatchWithIndex =
@@ -1289,7 +1289,7 @@ public class Transaction extends RocksObject {
    *
    * @return the WriteOptions that will be used
    */
-  // TODO: не компилится
+  // TODO: AbstractTransactionNotifier not implemented
   /*public WriteOptions getWriteOptions() {
     assert(isOwningHandle());
     final WriteOptions writeOptions =
