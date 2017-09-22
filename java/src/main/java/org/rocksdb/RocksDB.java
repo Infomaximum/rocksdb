@@ -435,7 +435,7 @@ public class RocksDB extends RocksObject {
         path));
   }
 
-  private void storeOptionsInstance(DBOptionsInterface options) {
+  protected void storeOptionsInstance(DBOptionsInterface options) {
     options_ = options;
   }
 
@@ -2360,7 +2360,7 @@ public class RocksDB extends RocksObject {
       throws RocksDBException;
   protected native long getSnapshot(long nativeHandle);
   protected native void releaseSnapshot(long nativeHandle, long snapshotHandle);
-  @Override protected final native void disposeInternal(final long handle);
+  @Override protected native void disposeInternal(final long handle);
   private native long getDefaultColumnFamily(long handle);
   private native long createColumnFamily(final long handle,
       final byte[] columnFamilyName, final long columnFamilyOptions)
