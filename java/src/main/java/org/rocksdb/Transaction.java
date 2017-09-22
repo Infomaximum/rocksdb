@@ -25,6 +25,10 @@ import java.util.List;
  */
 public class Transaction extends RocksObject {
 
+    static {
+        RocksDB.loadLibrary();
+    }
+
   private final RocksDB parent;
 
   /**
@@ -129,7 +133,7 @@ public class Transaction extends RocksObject {
    *     for the transaction
    *
    */
-  // TODO: не компилится
+  // COMMENT: disable unsupported functional
   /*public void setSnapshotOnNextOperation(
       final AbstractTransactionNotifier transactionNotifier) {
     assert(isOwningHandle());
@@ -1264,14 +1268,13 @@ public class Transaction extends RocksObject {
    *
    * @return The write batch
    */
-  // TODO: не компилится
-  /*public WriteBatchWithIndex getWriteBatch() {
+  public WriteBatchWithIndex getWriteBatch() {
     assert(isOwningHandle());
     final WriteBatchWithIndex writeBatchWithIndex =
         new WriteBatchWithIndex(getWriteBatch(nativeHandle_));
     writeBatchWithIndex.disOwnNativeHandle(); //TODO(AR) are the ownership semantics correct here?
     return writeBatchWithIndex;
-  }*/
+  }
 
   /**
    * Change the value of {@link TransactionOptions#getLockTimeout()}
@@ -1289,14 +1292,13 @@ public class Transaction extends RocksObject {
    *
    * @return the WriteOptions that will be used
    */
-  // TODO: не компилится
-  /*public WriteOptions getWriteOptions() {
+  public WriteOptions getWriteOptions() {
     assert(isOwningHandle());
     final WriteOptions writeOptions =
         new WriteOptions(getWriteOptions(nativeHandle_));
     writeOptions.disOwnNativeHandle(); //TODO(AR) are the ownership semantics correct here?
     return writeOptions;
-  }*/
+  }
 
   /**
    * Reset the WriteOptions that will be used during {@link #commit()}.

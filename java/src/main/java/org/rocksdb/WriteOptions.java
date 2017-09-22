@@ -21,6 +21,15 @@ public class WriteOptions extends RocksObject {
   }
 
   /**
+   * Private constructor.
+   *
+   * @param nativeHandle The native handle of the C++ RocksDB object
+   */
+  protected WriteOptions(final long nativeHandle) {
+    super(nativeHandle);
+  }
+
+  /**
    * If true, the write will be flushed from the operating system
    * buffer cache (by calling WritableFile::Sync()) before the write
    * is considered complete.  If this flag is true, writes will be

@@ -14,6 +14,10 @@ import java.util.List;
 public class TransactionDB extends RocksDB
     implements TransactionalDB<TransactionOptions> {
 
+  static {
+    RocksDB.loadLibrary();
+  }
+
   private TransactionDBOptions transactionDbOptions_;
 
   /**
