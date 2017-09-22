@@ -198,3 +198,17 @@ void Java_org_rocksdb_OptimisticTransactionDB_disposeInternal(JNIEnv* env,
     jobject jobj, jlong jhandle) {
   delete reinterpret_cast<rocksdb::OptimisticTransactionDB*>(jhandle);
 }
+
+/*
+* Class:     org_rocksdb_OptimisticTransactionDB
+* Method:    getBaseDB
+* Signature: (J)Z
+*/
+jlong Java_org_rocksdb_OptimisticTransactionDB_getBaseDB(
+	JNIEnv * env, jobject jobj, jlong jhandle) {
+	auto* optimistic_txn_db = 
+		reinterpret_cast<rocksdb::OptimisticTransactionDB*>(jhandle);
+
+	auto* db = optimistic_txn_db->GetBaseDB();
+	return reinterpret_cast<jlong>(db);
+}

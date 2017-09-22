@@ -44,6 +44,15 @@ public class WriteBatchWithIndex extends AbstractWriteBatch {
   }
 
   /**
+   * Private constructor.
+   *
+   * @param nativeHandle The native handle of the C++ RocksDB object
+   */
+  protected WriteBatchWithIndex(final long nativeHandle) {
+    super(nativeHandle);
+  }
+
+  /**
    * Creates a WriteBatchWithIndex
    *
    * @param fallbackIndexComparator We fallback to this comparator

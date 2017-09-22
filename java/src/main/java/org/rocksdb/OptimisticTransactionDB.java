@@ -10,8 +10,14 @@ import java.util.List;
 /**
  * Database with Transaction support.
  */
-public class OptimisticTransactionDB extends RocksDB
+public class OptimisticTransactionDB extends RocksObject
     implements TransactionalDB<OptimisticTransactionOptions> {
+
+  static {
+    RocksDB.loadLibrary();
+  }
+
+  private final RocksDB baseDB;
 
   /**
    * Private constructor.
@@ -21,6 +27,8 @@ public class OptimisticTransactionDB extends RocksDB
    */
   private OptimisticTransactionDB(final long nativeHandle) {
     super(nativeHandle);
+    baseDB = new RocksDB(getBaseDB(nativeHandle_));
+    baseDB.disOwnNativeHandle();
   }
 
   /**
@@ -70,22 +78,26 @@ public class OptimisticTransactionDB extends RocksDB
     otdb.storeOptionsInstance(dbOptions);
 
     for (int i = 1; i < handles.length; i++) {
-      columnFamilyHandles.add(new ColumnFamilyHandle(otdb, handles[i]));
+      columnFamilyHandles.add(new ColumnFamilyHandle(otdb.baseDB, handles[i]));
     }
 
     return otdb;
   }
 
+  private void storeOptionsInstance(DBOptionsInterface options) {
+    options_ = options;
+  }
+
   @Override
   public Transaction beginTransaction(final WriteOptions writeOptions) {
-    return new Transaction(this, beginTransaction(nativeHandle_,
+    return new Transaction(baseDB, beginTransaction(nativeHandle_,
         writeOptions.nativeHandle_));
   }
 
   @Override
   public Transaction beginTransaction(final WriteOptions writeOptions,
       final OptimisticTransactionOptions optimisticTransactionOptions) {
-    return new Transaction(this, beginTransaction(nativeHandle_,
+    return new Transaction(baseDB, beginTransaction(nativeHandle_,
         writeOptions.nativeHandle_,
         optimisticTransactionOptions.nativeHandle_));
   }
@@ -126,6 +138,10 @@ public class OptimisticTransactionDB extends RocksDB
     return oldTransaction;
   }
 
+  public RocksDB getBaseDB() {
+    return baseDB;
+  }
+
   protected static native long open(final long optionsHandle,
       final String path) throws RocksDBException;
   protected static native long[] open(final long handle, final String path,
@@ -141,5 +157,7 @@ public class OptimisticTransactionDB extends RocksDB
       final long writeOptionsHandle,
       final long optimisticTransactionOptionsHandle,
       final long oldTransactionHandle);
+  protected native long getBaseDB(final long handle);
   @Override protected final native void disposeInternal(final long handle);
+  private DBOptionsInterface options_;
 }

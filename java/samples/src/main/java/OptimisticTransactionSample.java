@@ -74,13 +74,13 @@ public class OptimisticTransactionSample {
       txn.put(key1, value1);
 
       // Read a key OUTSIDE this transaction. Does not affect txn.
-      value = txnDb.get(readOptions, key1);
+      value = txnDb.getBaseDB().get(readOptions, key1);
       assert(value == null);
 
       // Write a key OUTSIDE of this transaction.
       // Does not affect txn since this is an unrelated key.
       // If we wrote key 'abc' here, the transaction would fail to commit.
-      txnDb.put(writeOptions, key2, value2);
+      txnDb.getBaseDB().put(writeOptions, key2, value2);
 
       // Commit transaction
       txn.commit();
@@ -106,11 +106,11 @@ public class OptimisticTransactionSample {
       final Snapshot snapshot = txn.getSnapshot();
 
       // Write a key OUTSIDE of transaction
-      txnDb.put(writeOptions, key1, value1);
+      txnDb.getBaseDB().put(writeOptions, key1, value1);
 
       // Read a key using the snapshot.
       readOptions.setSnapshot(snapshot);
-      final byte[] value = txn.getForUpdate(readOptions, key1);
+      final byte[] value = txn.getForUpdate(readOptions, key1, true);
       assert(value == value1);
 
       try {
@@ -153,23 +153,23 @@ public class OptimisticTransactionSample {
              txnDb.beginTransaction(writeOptions, txnOptions)) {
 
       // Do some reads and writes to key "x"
-      Snapshot snapshot = txnDb.getSnapshot();
+      Snapshot snapshot = txnDb.getBaseDB().getSnapshot();
       readOptions.setSnapshot(snapshot);
       byte[] value = txn.get(readOptions, keyX);
       txn.put(valueX, valueX);
 
       // Do a write outside of the transaction to key "y"
-      txnDb.put(writeOptions, keyY, valueY);
+      txnDb.getBaseDB().put(writeOptions, keyY, valueY);
 
       // Set a new snapshot in the transaction
       txn.setSnapshot();
-      snapshot = txnDb.getSnapshot();
+      snapshot = txnDb.getBaseDB().getSnapshot();
       readOptions.setSnapshot(snapshot);
 
       // Do some reads and writes to key "y"
       // Since the snapshot was advanced, the write done outside of the
       // transaction does not conflict.
-      value = txn.getForUpdate(readOptions, keyY);
+      value = txn.getForUpdate(readOptions, keyY, true);
       txn.put(keyY, valueY);
 
       // Commit.  Since the snapshot was advanced, the write done outside of the

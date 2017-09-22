@@ -8,6 +8,10 @@ package org.rocksdb;
 public class OptimisticTransactionOptions extends RocksObject
     implements TransactionalOptions {
 
+  static {
+    RocksDB.loadLibrary();
+  }
+
   public OptimisticTransactionOptions() {
     super(newOptimisticTransactionOptions());
   }
