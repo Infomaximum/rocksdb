@@ -435,6 +435,10 @@ public class RocksDB extends RocksObject {
         path));
   }
 
+  public static Options loadOptionsFromFile(final String optionsFilePath, boolean ignoreUnknownOptions) throws RocksDBException {
+    return new Options(loadOptionsFromFile0(optionsFilePath, ignoreUnknownOptions));
+  }
+
   protected void storeOptionsInstance(DBOptionsInterface options) {
     options_ = options;
   }
@@ -2237,6 +2241,8 @@ public class RocksDB extends RocksObject {
       final String path, final byte[][] columnFamilyNames,
       final long[] columnFamilyOptions
   ) throws RocksDBException;
+
+  protected native static long loadOptionsFromFile0(final String optionsFilePath, final boolean ignoreUnknownOptions) throws RocksDBException;
 
   protected native static byte[][] listColumnFamilies(long optionsHandle,
       String path) throws RocksDBException;

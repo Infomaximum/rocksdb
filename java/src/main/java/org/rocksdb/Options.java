@@ -51,6 +51,11 @@ public class Options extends RocksObject
     env_ = Env.getDefault();
   }
 
+  protected Options(final long nativeHandle) {
+    super(nativeHandle);
+    env_ = Env.getDefault();
+  }
+
   @Override
   public Options setIncreaseParallelism(final int totalThreads) {
     assert(isOwningHandle());

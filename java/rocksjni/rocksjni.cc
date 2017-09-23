@@ -22,6 +22,7 @@
 #include "rocksdb/options.h"
 #include "rocksdb/types.h"
 #include "rocksjni/portal.h"
+#include "rocksdb/utilities/options_util.h"
 
 #ifdef min
 #undef min
@@ -228,6 +229,34 @@ jobjectArray Java_org_rocksdb_RocksDB_listColumnFamilies(
       rocksdb::JniUtil::stringsBytes(env, column_family_names);
 
   return jcolumn_family_names;
+}
+
+/*
+* Class:     org_rocksdb_RocksDB
+* Method:    loadOptionsFromFile0
+* Signature: (JLjava/lang/String;)[[B
+*/
+jlong Java_org_rocksdb_RocksDB_loadOptionsFromFile0(
+	JNIEnv* env, jclass jclazz, jstring joptions_file_path, jboolean jignore_unknown_options) {
+	const char* options_file_path = env->GetStringUTFChars(joptions_file_path, nullptr);
+	if (options_file_path == nullptr) {
+		// exception thrown: OutOfMemoryError
+		return 0;
+	}
+
+	rocksdb::Options opt;
+	std::vector<rocksdb::ColumnFamilyDescriptor> ignoring_cf;
+	rocksdb::Status s = rocksdb::LoadOptionsFromFile(options_file_path, rocksdb::Env::Default(), &opt, &ignoring_cf, jignore_unknown_options != JNI_FALSE);
+	
+	env->ReleaseStringUTFChars(joptions_file_path, options_file_path);
+
+	if (s.ok()) {
+		return reinterpret_cast<jlong>(new rocksdb::Options(std::move(opt)));
+	}
+	else {
+		rocksdb::RocksDBExceptionJni::ThrowNew(env, s);
+		return 0;
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
