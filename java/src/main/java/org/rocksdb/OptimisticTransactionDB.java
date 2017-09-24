@@ -28,7 +28,6 @@ public class OptimisticTransactionDB extends RocksObject
   private OptimisticTransactionDB(final long nativeHandle) {
     super(nativeHandle);
     baseDB = new RocksDB(getBaseDB(nativeHandle_));
-    baseDB.disOwnNativeHandle();
   }
 
   /**
@@ -48,6 +47,22 @@ public class OptimisticTransactionDB extends RocksObject
     return otdb;
   }
 
+  public static OptimisticTransactionDB open(final Options options,
+                                             final String path,
+                                             final List<ColumnFamilyDescriptor> columnFamilyDescriptors,
+                                             final List<ColumnFamilyHandle> columnFamilyHandles)
+          throws RocksDBException {
+
+    final OptimisticTransactionDB otdb = open(options.nativeHandle_, path, columnFamilyDescriptors, columnFamilyHandles);
+
+    // when non-default Options is used, keeping an Options reference
+    // in RocksDB can prevent Java to GC during the life-time of
+    // the currently-created RocksDB.
+    otdb.storeOptionsInstance(options);
+
+    return otdb;
+  }
+
   /**
    * Open an OptimisticTransactionDB similar to
    * {@link RocksDB#open(DBOptions, String, List, List)}
@@ -58,6 +73,22 @@ public class OptimisticTransactionDB extends RocksObject
       final List<ColumnFamilyHandle> columnFamilyHandles)
       throws RocksDBException {
 
+    final OptimisticTransactionDB otdb = open(dbOptions.nativeHandle_, path, columnFamilyDescriptors, columnFamilyHandles);
+
+    // when non-default Options is used, keeping an Options reference
+    // in RocksDB can prevent Java to GC during the life-time of
+    // the currently-created RocksDB.
+    otdb.storeOptionsInstance(dbOptions);
+
+    return otdb;
+  }
+
+  private static OptimisticTransactionDB open(final long dbOptionsNativeHandle,
+                                             final String path,
+                                             final List<ColumnFamilyDescriptor> columnFamilyDescriptors,
+                                             final List<ColumnFamilyHandle> columnFamilyHandles)
+          throws RocksDBException {
+
     final byte[][] cfNames = new byte[columnFamilyDescriptors.size()][];
     final long[] cfOptionHandles = new long[columnFamilyDescriptors.size()];
     for (int i = 0; i < columnFamilyDescriptors.size(); i++) {
@@ -67,15 +98,10 @@ public class OptimisticTransactionDB extends RocksObject
       cfOptionHandles[i] = cfDescriptor.columnFamilyOptions().nativeHandle_;
     }
 
-    final long[] handles = open(dbOptions.nativeHandle_, path, cfNames,
+    final long[] handles = open(dbOptionsNativeHandle, path, cfNames,
         cfOptionHandles);
     final OptimisticTransactionDB otdb =
         new OptimisticTransactionDB(handles[0]);
-
-    // when non-default Options is used, keeping an Options reference
-    // in RocksDB can prevent Java to GC during the life-time of
-    // the currently-created RocksDB.
-    otdb.storeOptionsInstance(dbOptions);
 
     for (int i = 1; i < handles.length; i++) {
       columnFamilyHandles.add(new ColumnFamilyHandle(otdb.baseDB, handles[i]));
@@ -140,6 +166,14 @@ public class OptimisticTransactionDB extends RocksObject
 
   public RocksDB getBaseDB() {
     return baseDB;
+  }
+
+  @Override
+  protected void disposeInternal() {
+    // this.nativeHandle owns the baseDB.nativeHandle.
+    // And baseDB.nativeHandle will be destroyed when the this.nativeHandle is destroyed.
+    baseDB.disOwnNativeHandle();
+    super.disposeInternal();
   }
 
   protected static native long open(final long optionsHandle,
