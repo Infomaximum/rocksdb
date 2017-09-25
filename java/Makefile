@@ -29,6 +29,8 @@ NATIVE_JAVA_CLASSES = org.rocksdb.AbstractCompactionFilter\
 	org.rocksdb.Logger\
 	org.rocksdb.LRUCache\
 	org.rocksdb.MergeOperator\
+	org.rocksdb.OptimisticTransactionDB\
+	org.rocksdb.OptimisticTransactionOptions\
 	org.rocksdb.Options\
 	org.rocksdb.OptionsUtil\
 	org.rocksdb.PlainTableConfig\
@@ -45,7 +47,13 @@ NATIVE_JAVA_CLASSES = org.rocksdb.AbstractCompactionFilter\
 	org.rocksdb.Slice\
 	org.rocksdb.SstFileWriter\
 	org.rocksdb.Statistics\
+	org.rocksdb.Transaction\
+	org.rocksdb.TransactionalDB\
+	org.rocksdb.TransactionalOptions\
+	org.rocksdb.TransactionDB\
+	org.rocksdb.TransactionDBOptions\
 	org.rocksdb.TransactionLogIterator\
+	org.rocksdb.TransactionOptions\
 	org.rocksdb.TtlDB\
 	org.rocksdb.VectorMemTableConfig\
 	org.rocksdb.Snapshot\
