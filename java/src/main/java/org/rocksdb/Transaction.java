@@ -94,10 +94,6 @@ public class Transaction extends RocksObject {
    * first write/getForUpdate operation. i.e. this prevents the following
    * race-condition:
    *
-   *   txn1->setSnapshot();
-   *                             txn2->put("A", ...);
-   *                             txn2->commit();
-   *   txn1->getForUpdate(opts, "A", ...);  * FAIL!
    */
   public void setSnapshotOnNextOperation() {
     assert(isOwningHandle());
@@ -124,10 +120,6 @@ public class Transaction extends RocksObject {
    * first write/getForUpdate operation. i.e. this prevents the following
    * race-condition:
    *
-   *   txn1->setSnapshot();
-   *                             txn2->put("A", ...);
-   *                             txn2->commit();
-   *   txn1->getForUpdate(opts, "A", ...);  * FAIL!
    *
    * @param transactionNotifier A handler for receiving snapshot notifications
    *     for the transaction
@@ -405,7 +397,7 @@ public class Transaction extends RocksObject {
    * transaction.
    *
    * If this transaction was created by an {@link OptimisticTransactionDB},
-   * {@link #getForUpdate(ReadOptions, ColumnFamilyHandle, byte[])}
+   * getForUpdate
    * could cause {@link #commit()} to fail. Otherwise, it could return any error
    * that could be returned by
    * {@link RocksDB#get(ColumnFamilyHandle, ReadOptions, byte[])}.
@@ -417,7 +409,7 @@ public class Transaction extends RocksObject {
    *     {@link Status.Code#TimedOut} if a lock could not be acquired,
    *     {@link Status.Code#TryAgain} if the memtable history size is not large
    *         enough. See
-   *         {@link ColumnFamilyOptions#maxWriteBufferNumberToMaintain(int)}
+   *         ColumnFamilyOptions
    *     {@link Status.Code#MergeInProgress} if merge operations cannot be
    *     resolved.
    *
@@ -457,7 +449,7 @@ public class Transaction extends RocksObject {
    * transaction.
    *
    * If this transaction was created on an {@link OptimisticTransactionDB},
-   * {@link #getForUpdate(ReadOptions, ColumnFamilyHandle, byte[])}
+   * getForUpdate
    * could cause {@link #commit()} to fail. Otherwise, it could return any error
    * that could be returned by
    * {@link RocksDB#get(ReadOptions, byte[])}.
@@ -469,7 +461,7 @@ public class Transaction extends RocksObject {
    *     {@link Status.Code#TimedOut} if a lock could not be acquired,
    *     {@link Status.Code#TryAgain} if the memtable history size is not large
    *         enough. See
-   *         {@link ColumnFamilyOptions#maxWriteBufferNumberToMaintain(int)}
+   *         ColumnFamilyOptions
    *     {@link Status.Code#MergeInProgress} if merge operations cannot be
    *     resolved.
    *
@@ -491,7 +483,7 @@ public class Transaction extends RocksObject {
 
   /**
    * A multi-key version of
-   * {@link #getForUpdate(ReadOptions, ColumnFamilyHandle, byte[])}.
+   * getForUpdate
    *
    *
    * @param readOptions Read options.
@@ -525,7 +517,7 @@ public class Transaction extends RocksObject {
   }
 
   /**
-   * A multi-key version of {@link #getForUpdate(ReadOptions, byte[])}.
+   * A multi-key version of getForUpdate.
    *
    *
    * @param readOptions Read options.
@@ -613,7 +605,7 @@ public class Transaction extends RocksObject {
    *     {@link Status.Code#TimedOut} if a lock could not be acquired,
    *     {@link Status.Code#TryAgain} if the memtable history size is not large
    *         enough. See
-   *         {@link ColumnFamilyOptions#maxWriteBufferNumberToMaintain(int))}
+   *         ColumnFamilyOptions
    *
    * @param columnFamilyHandle The column family to put the key/value into
    * @param key the specified key to be inserted.
@@ -643,7 +635,7 @@ public class Transaction extends RocksObject {
    *    {@link Status.Code#TimedOut} if a lock could not be acquired,
    *    {@link Status.Code#TryAgain} if the memtable history size is not large
    *       enough. See
-   *       {@link ColumnFamilyOptions#maxWriteBufferNumberToMaintain(int))}
+   *       ColumnFamilyOptions
    *
    * @param key the specified key to be inserted.
    * @param value the value associated with the specified key.
@@ -711,7 +703,7 @@ public class Transaction extends RocksObject {
    *    {@link Status.Code#TimedOut} if a lock could not be acquired,
    *    {@link Status.Code#TryAgain} if the memtable history size is not large
    *       enough. See
-   *       {@link ColumnFamilyOptions#maxWriteBufferNumberToMaintain(int))}
+   *       ColumnFamilyOptions
    *
    * @param columnFamilyHandle The column family to merge the key/value into
    * @param key the specified key to be merged.
@@ -741,7 +733,7 @@ public class Transaction extends RocksObject {
    *    {@link Status.Code#TimedOut} if a lock could not be acquired,
    *    {@link Status.Code#TryAgain} if the memtable history size is not large
    *       enough. See
-   *       {@link ColumnFamilyOptions#maxWriteBufferNumberToMaintain(int))}
+   *       ColumnFamilyOptions
    *
    * @param key the specified key to be merged.
    * @param value the value associated with the specified key.
@@ -769,7 +761,7 @@ public class Transaction extends RocksObject {
    *    {@link Status.Code#TimedOut} if a lock could not be acquired,
    *    {@link Status.Code#TryAgain} if the memtable history size is not large
    *       enough. See
-   *       {@link ColumnFamilyOptions#maxWriteBufferNumberToMaintain(int))}
+   *       ColumnFamilyOptions
    *
    * @param columnFamilyHandle The column family to delete the key/value from
    * @param key the specified key to be deleted.
@@ -797,7 +789,7 @@ public class Transaction extends RocksObject {
    *    {@link Status.Code#TimedOut} if a lock could not be acquired,
    *    {@link Status.Code#TryAgain} if the memtable history size is not large
    *       enough. See
-   *       {@link ColumnFamilyOptions#maxWriteBufferNumberToMaintain(int))}
+   *       ColumnFamilyOptions
    *
    * @param key the specified key to be deleted.
    *
@@ -858,7 +850,7 @@ public class Transaction extends RocksObject {
    *    {@link Status.Code#TimedOut} if a lock could not be acquired,
    *    {@link Status.Code#TryAgain} if the memtable history size is not large
    *       enough. See
-   *       {@link ColumnFamilyOptions#maxWriteBufferNumberToMaintain(int))}
+   *       ColumnFamilyOptions
    *
    * @param columnFamilyHandle The column family to delete the key/value from
    * @param key the specified key to be deleted.
@@ -888,7 +880,7 @@ public class Transaction extends RocksObject {
    *    {@link Status.Code#TimedOut} if a lock could not be acquired,
    *    {@link Status.Code#TryAgain} if the memtable history size is not large
    *       enough. See
-   *       {@link ColumnFamilyOptions#maxWriteBufferNumberToMaintain(int))}
+   *       ColumnFamilyOptions
    *
    * @param key the specified key to be deleted.
    *
@@ -1312,14 +1304,14 @@ public class Transaction extends RocksObject {
 
   /**
    * If this key was previously fetched in this transaction using
-   * {@link #getForUpdate(ReadOptions, ColumnFamilyHandle, byte[])}/
+   * getForUpdate
    * {@link #multiGetForUpdate(ReadOptions, List, byte[][])}, calling
    * {@link #undoGetForUpdate(ColumnFamilyHandle, byte[])} will tell
    * the transaction that it no longer needs to do any conflict checking
    * for this key.
    *
    * If a key has been fetched N times via
-   * {@link #getForUpdate(ReadOptions, ColumnFamilyHandle, byte[])}/
+   * getForUpdate
    * {@link #multiGetForUpdate(ReadOptions, List, byte[][])}, then
    * {@link #undoGetForUpdate(ColumnFamilyHandle, byte[])}  will only have an
    * effect if it is also called N times. If this key has been written to in
@@ -1327,7 +1319,7 @@ public class Transaction extends RocksObject {
    * will have no effect.
    *
    * If {@link #setSavePoint()} has been called after the
-   * {@link #getForUpdate(ReadOptions, ColumnFamilyHandle, byte[])},
+   * getForUpdate
    * {@link #undoGetForUpdate(ColumnFamilyHandle, byte[])} will not have any
    * effect.
    *
@@ -1350,14 +1342,14 @@ public class Transaction extends RocksObject {
 
   /**
    * If this key was previously fetched in this transaction using
-   * {@link #getForUpdate(ReadOptions, byte[])}/
+   * getForUpdate
    * {@link #multiGetForUpdate(ReadOptions, List, byte[][])}, calling
    * {@link #undoGetForUpdate(byte[])} will tell
    * the transaction that it no longer needs to do any conflict checking
    * for this key.
    *
    * If a key has been fetched N times via
-   * {@link #getForUpdate(ReadOptions, byte[])}/
+   * getForUpdate
    * {@link #multiGetForUpdate(ReadOptions, List, byte[][])}, then
    * {@link #undoGetForUpdate(byte[])}  will only have an
    * effect if it is also called N times. If this key has been written to in
@@ -1365,7 +1357,7 @@ public class Transaction extends RocksObject {
    * will have no effect.
    *
    * If {@link #setSavePoint()} has been called after the
-   * {@link #getForUpdate(ReadOptions, byte[])},
+   * getForUpdate
    * {@link #undoGetForUpdate(byte[])} will not have any
    * effect.
    *
