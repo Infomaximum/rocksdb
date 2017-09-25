@@ -42,8 +42,6 @@ set(JNI_NATIVE_SOURCES
 		rocksjni/transaction_db.cc
 		rocksjni/transaction_db_options.cc
         rocksjni/transaction_log.cc
-		rocksjni/transaction_notifier.cc
-		rocksjni/transaction_notifier_jnicallback.cc
 		rocksjni/transaction_options.cc
         rocksjni/ttl.cc
         rocksjni/write_batch.cc
