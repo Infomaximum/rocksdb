@@ -85,6 +85,8 @@ set(NATIVE_JAVA_CLASSES
         org.rocksdb.MemTableConfig
         org.rocksdb.MergeOperator
         org.rocksdb.NativeLibraryLoader
+		org.rocksdb.OptimisticTransactionDB
+		org.rocksdb.OptimisticTransactionOptions
         org.rocksdb.Options
         org.rocksdb.PlainTableConfig
         org.rocksdb.RateLimiter
@@ -107,7 +109,13 @@ set(NATIVE_JAVA_CLASSES
         org.rocksdb.Statistics
         org.rocksdb.StringAppendOperator
         org.rocksdb.TableFormatConfig
-        org.rocksdb.TransactionLogIterator
+		org.rocksdb.Transaction
+		org.rocksdb.TransactionalDB
+		org.rocksdb.TransactionalOptions
+		org.rocksdb.TransactionDB
+		org.rocksdb.TransactionDBOptions
+		org.rocksdb.TransactionLogIterator
+		org.rocksdb.TransactionOptions
         org.rocksdb.TtlDB
         org.rocksdb.VectorMemTableConfig
         org.rocksdb.WBWIRocksIterator
