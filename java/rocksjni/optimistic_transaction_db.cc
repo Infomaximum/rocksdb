@@ -26,6 +26,11 @@ jlong Java_org_rocksdb_OptimisticTransactionDB_open__JLjava_lang_String_2(
   auto* options = reinterpret_cast<rocksdb::Options*>(joptions_handle);
   rocksdb::OptimisticTransactionDB* otdb = nullptr;
   const char* db_path = env->GetStringUTFChars(jdb_path, NULL);
+  if (db_path == nullptr) {
+	  // exception thrown: OutOfMemoryError
+	  return 0;
+  }
+
   rocksdb::Status s =
       rocksdb::OptimisticTransactionDB::Open(*options, db_path, &otdb);
   env->ReleaseStringUTFChars(jdb_path, db_path);
@@ -47,16 +52,32 @@ jlongArray Java_org_rocksdb_OptimisticTransactionDB_open__JLjava_lang_String_2_3
     JNIEnv* env, jclass jcls, jlong jdb_options_handle, jstring jdb_path,
     jobjectArray jcolumn_names, jlongArray jcolumn_options_handles) {
   auto* db_options = reinterpret_cast<rocksdb::DBOptions*>(jdb_options_handle);
-  const char* db_path = env->GetStringUTFChars(jdb_path, NULL);
 
   std::vector<rocksdb::ColumnFamilyDescriptor> column_families;
 
   jsize len_cols = env->GetArrayLength(jcolumn_names);
   jlong* jco = env->GetLongArrayElements(jcolumn_options_handles, NULL);
+  if (jco == nullptr) {
+	  // exception thrown: OutOfMemoryError
+	  return nullptr;
+  }
+
   for (int i = 0; i < len_cols; i++) {
     jobject jcn = env->GetObjectArrayElement(jcolumn_names, i);
+	if (env->ExceptionCheck()) {
+		// exception thrown: ArrayIndexOutOfBoundsException
+		env->ReleaseLongArrayElements(jcolumn_options_handles, jco, JNI_ABORT);
+		return nullptr;
+	}
+
     jbyteArray jcn_ba = reinterpret_cast<jbyteArray>(jcn);
     jbyte* jcf_name = env->GetByteArrayElements(jcn_ba, NULL);
+	if (jcf_name == nullptr) {
+		// exception thrown: OutOfMemoryError
+		env->ReleaseLongArrayElements(jcolumn_options_handles, jco, JNI_ABORT);
+		env->DeleteLocalRef(jcn);
+		return nullptr;
+	}
 
     const int jcf_name_len = env->GetArrayLength(jcn_ba);
     std::string cf_name(reinterpret_cast<char *>(jcf_name), jcf_name_len);
@@ -70,10 +91,17 @@ jlongArray Java_org_rocksdb_OptimisticTransactionDB_open__JLjava_lang_String_2_3
   }
   env->ReleaseLongArrayElements(jcolumn_options_handles, jco, JNI_ABORT);
 
+  const char* db_path = env->GetStringUTFChars(jdb_path, NULL);
+  if (db_path == nullptr) {
+	  // exception thrown: OutOfMemoryError
+	  return nullptr;
+  }
   std::vector<rocksdb::ColumnFamilyHandle*> handles;
   rocksdb::OptimisticTransactionDB* otdb = nullptr;
   rocksdb::Status s = rocksdb::OptimisticTransactionDB::Open(*db_options,
       db_path, column_families, &handles, &otdb);
+
+  env->ReleaseStringUTFChars(jdb_path, db_path);
 
   // check if open operation was successful
   if (s.ok()) {
@@ -90,7 +118,7 @@ jlongArray Java_org_rocksdb_OptimisticTransactionDB_open__JLjava_lang_String_2_3
     return jresults;
   } else {
     rocksdb::RocksDBExceptionJni::ThrowNew(env, s);
-    return NULL;
+    return nullptr;
   }
 }
 
