@@ -1713,8 +1713,7 @@ public class RocksDB extends RocksObject {
   }
 
   /**
-   * Drops the column family identified by columnFamilyName. Internal
-   * handles to this column family will be disposed. If the column family
+   * Drops the column family identified by columnFamilyName. If the column family
    * is not known removal will fail.
    *
    * @param columnFamilyHandle {@link org.rocksdb.ColumnFamilyHandle}
@@ -1727,8 +1726,6 @@ public class RocksDB extends RocksObject {
       throws RocksDBException, IllegalArgumentException {
     // throws RocksDBException if something goes wrong
     dropColumnFamily(nativeHandle_, columnFamilyHandle.nativeHandle_);
-    // After the drop the native handle is not valid anymore
-    columnFamilyHandle.disOwnNativeHandle();
   }
 
   /**
