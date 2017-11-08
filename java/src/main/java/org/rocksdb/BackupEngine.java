@@ -131,6 +131,17 @@ public class BackupEngine extends RocksObject implements AutoCloseable {
   }
 
   /**
+   *  Checks that each file exists and that the size of the file matches our
+   *  expectations. it does not check file checksum.
+   * @param backupId
+   * @throws RocksDBException thrown if not all checks are good
+   */
+  public void verifyBackup(final int backupId) throws RocksDBException {
+    assert (isOwningHandle());
+    verifyBackup(nativeHandle_, backupId);
+  }
+
+  /**
    * Deletes a backup
    *
    * @param backupId The id of the backup to delete
@@ -208,6 +219,9 @@ public class BackupEngine extends RocksObject implements AutoCloseable {
 
   private native void deleteBackup(final long handle, final int backupId)
       throws RocksDBException;
+
+  private native void verifyBackup(final long handle, final int backupId)
+          throws RocksDBException;
 
   private native void restoreDbFromBackup(final long handle, final int backupId,
       final String dbDir, final String walDir, final long restoreOptionsHandle)
