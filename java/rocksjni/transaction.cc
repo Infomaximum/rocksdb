@@ -606,26 +606,26 @@ void txn_write_kv_parts_helper(JNIEnv* env,
     const jint &jvalue_parts_len) {
   assert(jkey_parts_len == jvalue_parts_len);
 
-  rocksdb::Slice key_parts[jkey_parts_len];
-  rocksdb::Slice value_parts[jvalue_parts_len];
-  std::tuple<jbyteArray, jbyte*, jobject> jkey_parts_to_free[jkey_parts_len];
-  std::tuple<jbyteArray, jbyte*, jobject> jvalue_parts_to_free[jvalue_parts_len];
+  std::unique_ptr<rocksdb::Slice[]> key_parts(new rocksdb::Slice[jkey_parts_len]);
+  std::unique_ptr<rocksdb::Slice[]> value_parts(new rocksdb::Slice[jvalue_parts_len]);
+  std::unique_ptr<std::tuple<jbyteArray, jbyte*, jobject>[]> jkey_parts_to_free(new std::tuple<jbyteArray, jbyte*, jobject>[jkey_parts_len]);
+  std::unique_ptr<std::tuple<jbyteArray, jbyte*, jobject>[]> jvalue_parts_to_free(new std::tuple<jbyteArray, jbyte*, jobject>[jvalue_parts_len]);
 
   // convert java key_parts/value_parts byte[][] to Slice(s)
   for (jsize i = 0; i < jkey_parts_len; ++i) {
     const jobject jobj_key_part = env->GetObjectArrayElement(jkey_parts, i);
     if (env->ExceptionCheck()) {
       // exception thrown: ArrayIndexOutOfBoundsException
-      free_key_value_parts(env, jkey_parts_len, jkey_parts_to_free,
-          jvalue_parts_to_free);
+      free_key_value_parts(env, jkey_parts_len, jkey_parts_to_free.get(),
+          jvalue_parts_to_free.get());
       return;
     }
     const jobject jobj_value_part = env->GetObjectArrayElement(jvalue_parts, i);
     if (env->ExceptionCheck()) {
       // exception thrown: ArrayIndexOutOfBoundsException
       env->DeleteLocalRef(jobj_key_part);
-      free_key_value_parts(env, jkey_parts_len, jkey_parts_to_free,
-          jvalue_parts_to_free);
+      free_key_value_parts(env, jkey_parts_len, jkey_parts_to_free.get(),
+          jvalue_parts_to_free.get());
       return;
     }
 
@@ -635,8 +635,8 @@ void txn_write_kv_parts_helper(JNIEnv* env,
       // out of memory
       env->DeleteLocalRef(jobj_value_part);
       env->DeleteLocalRef(jobj_key_part);
-      free_key_value_parts(env, jkey_parts_len, jkey_parts_to_free,
-          jvalue_parts_to_free);
+      free_key_value_parts(env, jkey_parts_len, jkey_parts_to_free.get(),
+          jvalue_parts_to_free.get());
       return;
     }
     jbyte* jkey_part = env->GetByteArrayElements(jba_key_part, nullptr);
@@ -644,8 +644,8 @@ void txn_write_kv_parts_helper(JNIEnv* env,
       // exception thrown: OutOfMemoryError
       env->DeleteLocalRef(jobj_value_part);
       env->DeleteLocalRef(jobj_key_part);
-      free_key_value_parts(env, jkey_parts_len, jkey_parts_to_free,
-          jvalue_parts_to_free);
+      free_key_value_parts(env, jkey_parts_len, jkey_parts_to_free.get(),
+          jvalue_parts_to_free.get());
       return;
     }
 
@@ -655,8 +655,8 @@ void txn_write_kv_parts_helper(JNIEnv* env,
       // out of memory
       env->DeleteLocalRef(jobj_value_part);
       env->DeleteLocalRef(jobj_key_part);
-      free_key_value_parts(env, jkey_parts_len, jkey_parts_to_free,
-          jvalue_parts_to_free);
+      free_key_value_parts(env, jkey_parts_len, jkey_parts_to_free.get(),
+          jvalue_parts_to_free.get());
       return;
     }
     jbyte* jvalue_part = env->GetByteArrayElements(jba_value_part, nullptr);
@@ -665,8 +665,8 @@ void txn_write_kv_parts_helper(JNIEnv* env,
       env->ReleaseByteArrayElements(jba_value_part, jvalue_part, JNI_ABORT);
       env->DeleteLocalRef(jobj_value_part);
       env->DeleteLocalRef(jobj_key_part);
-      free_key_value_parts(env, jkey_parts_len, jkey_parts_to_free,
-          jvalue_parts_to_free);
+      free_key_value_parts(env, jkey_parts_len, jkey_parts_to_free.get(),
+          jvalue_parts_to_free.get());
       return;
     }
 
@@ -683,12 +683,12 @@ void txn_write_kv_parts_helper(JNIEnv* env,
 
   // call the write_multi function
   rocksdb::Status s = fn_write_kv_parts(
-    rocksdb::SliceParts(key_parts, jkey_parts_len),
-    rocksdb::SliceParts(value_parts, jvalue_parts_len));
+    rocksdb::SliceParts(key_parts.get(), jkey_parts_len),
+    rocksdb::SliceParts(value_parts.get(), jvalue_parts_len));
 
   // cleanup temporary memory
-  free_key_value_parts(env, jkey_parts_len, jkey_parts_to_free,
-    jvalue_parts_to_free);
+  free_key_value_parts(env, jkey_parts_len, jkey_parts_to_free.get(),
+    jvalue_parts_to_free.get());
 
   // return
   if (s.ok()) {
@@ -842,15 +842,15 @@ void txn_write_k_parts_helper(JNIEnv* env,
     const FnWriteKParts &fn_write_k_parts, const jobjectArray &jkey_parts,
     const jint &jkey_parts_len) {
 
-  rocksdb::Slice key_parts[jkey_parts_len];
-  std::tuple<jbyteArray, jbyte*, jobject> jkey_parts_to_free[jkey_parts_len];
+  std::unique_ptr<rocksdb::Slice[]> key_parts(new rocksdb::Slice[jkey_parts_len]);
+  std::unique_ptr<std::tuple<jbyteArray, jbyte*, jobject>[]> jkey_parts_to_free(new std::tuple<jbyteArray, jbyte*, jobject>[jkey_parts_len]);
 
   // convert java key_parts byte[][] to Slice(s)
   for (jint i = 0; i < jkey_parts_len; ++i) {
     const jobject jobj_key_part = env->GetObjectArrayElement(jkey_parts, i);
     if (env->ExceptionCheck()) {
       // exception thrown: ArrayIndexOutOfBoundsException
-      free_key_parts(env, jkey_parts_len, jkey_parts_to_free);
+      free_key_parts(env, jkey_parts_len, jkey_parts_to_free.get());
       return;
     }
 
@@ -859,14 +859,14 @@ void txn_write_k_parts_helper(JNIEnv* env,
     if (env->EnsureLocalCapacity(jkey_part_len) != 0) {
       // out of memory
       env->DeleteLocalRef(jobj_key_part);
-      free_key_parts(env, jkey_parts_len, jkey_parts_to_free);
+      free_key_parts(env, jkey_parts_len, jkey_parts_to_free.get());
       return;
     }
     jbyte* jkey_part = env->GetByteArrayElements(jba_key_part, nullptr);
     if (jkey_part == nullptr) {
       // exception thrown: OutOfMemoryError
       env->DeleteLocalRef(jobj_key_part);
-      free_key_parts(env, jkey_parts_len, jkey_parts_to_free);
+      free_key_parts(env, jkey_parts_len, jkey_parts_to_free.get());
       return;
     }
 
@@ -878,10 +878,10 @@ void txn_write_k_parts_helper(JNIEnv* env,
 
   // call the write_multi function
   rocksdb::Status s = fn_write_k_parts(
-    rocksdb::SliceParts(key_parts, jkey_parts_len));
+    rocksdb::SliceParts(key_parts.get(), jkey_parts_len));
 
   // cleanup temporary memory
-  free_key_parts(env, jkey_parts_len, jkey_parts_to_free);
+  free_key_parts(env, jkey_parts_len, jkey_parts_to_free.get());
 
   // return
   if (s.ok()) {

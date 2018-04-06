@@ -267,7 +267,7 @@ jlongArray Java_org_rocksdb_TransactionDB_getAllPreparedTransactions(
   assert(size < UINT32_MAX);  // does it fit in a jint?
 
   const jsize len = static_cast<jsize>(size);
-  jlong tmp[len];
+  std::unique_ptr<jlong[]> tmp(new jlong[len]);
   for (jsize i = 0; i < len; ++i) {
       tmp[i] = reinterpret_cast<jlong>(txns[i]);
   }
@@ -277,7 +277,7 @@ jlongArray Java_org_rocksdb_TransactionDB_getAllPreparedTransactions(
       // exception thrown: OutOfMemoryError
       return nullptr;
   }
-  env->SetLongArrayRegion(jtxns, 0, len, tmp);
+  env->SetLongArrayRegion(jtxns, 0, len, tmp.get());
   if (env->ExceptionCheck()) {
       // exception thrown: ArrayIndexOutOfBoundsException
       env->DeleteLocalRef(jtxns);
