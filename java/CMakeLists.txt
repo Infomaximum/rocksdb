@@ -25,6 +25,8 @@ set(JNI_NATIVE_SOURCES
         rocksjni/memtablejni.cc
         rocksjni/merge_operator.cc
         rocksjni/native_comparator_wrapper_test.cc
+		rocksjni/optimistic_transaction_db.cc
+		rocksjni/optimistic_transaction_options.cc
         rocksjni/options.cc
         rocksjni/options_util.cc
         rocksjni/ratelimiterjni.cc
@@ -41,7 +43,13 @@ set(JNI_NATIVE_SOURCES
         rocksjni/statistics.cc
         rocksjni/statisticsjni.cc
         rocksjni/table.cc
+		rocksjni/transaction.cc
+		rocksjni/transaction_db.cc
+		rocksjni/transaction_db_options.cc
         rocksjni/transaction_log.cc
+		rocksjni/transaction_notifier.cc
+		rocksjni/transaction_notifier_jnicallback.cc
+		rocksjni/transaction_options.cc
         rocksjni/ttl.cc
         rocksjni/write_batch.cc
         rocksjni/write_batch_test.cc
@@ -51,11 +59,13 @@ set(JNI_NATIVE_SOURCES
 
 set(NATIVE_JAVA_CLASSES
         org.rocksdb.AbstractCompactionFilter
+		org.rocksdb.AbstractCompactionFilter.Context
         org.rocksdb.AbstractCompactionFilterFactory
         org.rocksdb.AbstractImmutableNativeReference
         org.rocksdb.AbstractNativeReference
         org.rocksdb.AbstractRocksIterator
         org.rocksdb.AbstractSlice
+		org.rocksdb.AbstractTransactionNotifier
         org.rocksdb.AbstractWriteBatch
         org.rocksdb.BackupableDBOptions
         org.rocksdb.BackupEngine
@@ -91,6 +101,8 @@ set(NATIVE_JAVA_CLASSES
         org.rocksdb.NativeComparatorWrapper
         org.rocksdb.NativeComparatorWrapperTest.NativeStringComparatorWrapper
         org.rocksdb.NativeLibraryLoader
+		org.rocksdb.OptimisticTransactionDB
+		org.rocksdb.OptimisticTransactionOptions
         org.rocksdb.Options
         org.rocksdb.OptionsUtil
         org.rocksdb.PlainTableConfig
@@ -100,6 +112,7 @@ set(NATIVE_JAVA_CLASSES
         org.rocksdb.RestoreOptions
         org.rocksdb.RocksCallbackObject
         org.rocksdb.RocksDB
+		org.rocksdb.RocksDB.LibraryState
         org.rocksdb.RocksDBExceptionTest
         org.rocksdb.RocksEnv
         org.rocksdb.RocksIterator
@@ -115,17 +128,32 @@ set(NATIVE_JAVA_CLASSES
         org.rocksdb.Statistics
         org.rocksdb.StringAppendOperator
         org.rocksdb.TableFormatConfig
+		org.rocksdb.Transaction
+		org.rocksdb.Transaction.TransactionState
+		org.rocksdb.Transaction.WaitingTransactions
+		org.rocksdb.TransactionDB
+		org.rocksdb.TransactionDB.DeadlockInfo
+		org.rocksdb.TransactionDB.DeadlockPath
+		org.rocksdb.TransactionDB.KeyLockInfo
+		org.rocksdb.TransactionDBOptions
         org.rocksdb.TransactionLogIterator
+		org.rocksdb.TransactionLogIterator.BatchResult
+		org.rocksdb.TransactionOptions
         org.rocksdb.TtlDB
         org.rocksdb.VectorMemTableConfig
         org.rocksdb.WBWIRocksIterator
+		org.rocksdb.WBWIRocksIterator.WriteEntry
+		org.rocksdb.WBWIRocksIterator.WriteType
         org.rocksdb.WriteBatch
         org.rocksdb.WriteBatch.Handler
+		org.rocksdb.WriteBatch.SavePoint
         org.rocksdb.WriteBatchTest
         org.rocksdb.WriteBatchTestInternalHelper
         org.rocksdb.WriteBatchWithIndex
         org.rocksdb.WriteOptions
         org.rocksdb.util.CapturingWriteBatchHandler
+		org.rocksdb.util.CapturingWriteBatchHandler.Action
+		org.rocksdb.util.CapturingWriteBatchHandler.Event
         org.rocksdb.util.WriteBatchGetter
 )
 
