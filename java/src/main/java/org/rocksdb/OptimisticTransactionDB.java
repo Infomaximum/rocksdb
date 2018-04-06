@@ -10,8 +10,10 @@ import java.util.List;
 /**
  * Database with Transaction support.
  */
-public class OptimisticTransactionDB extends RocksDB
+public class OptimisticTransactionDB extends RocksObject
     implements TransactionalDB<OptimisticTransactionOptions> {
+
+  private final RocksDB baseDB;
 
   /**
    * Private constructor.
@@ -21,6 +23,8 @@ public class OptimisticTransactionDB extends RocksDB
    */
   private OptimisticTransactionDB(final long nativeHandle) {
     super(nativeHandle);
+
+    baseDB = new RocksDB(getBaseDB(nativeHandle_));
   }
 
   /**
@@ -43,7 +47,7 @@ public class OptimisticTransactionDB extends RocksDB
     // when non-default Options is used, keeping an Options reference
     // in RocksDB can prevent Java to GC during the life-time of
     // the currently-created RocksDB.
-    otdb.storeOptionsInstance(options);
+    otdb.getBaseDB().storeOptionsInstance(options);
 
     return otdb;
   }
@@ -85,10 +89,10 @@ public class OptimisticTransactionDB extends RocksDB
     // when non-default Options is used, keeping an Options reference
     // in RocksDB can prevent Java to GC during the life-time of
     // the currently-created RocksDB.
-    otdb.storeOptionsInstance(dbOptions);
+    otdb.getBaseDB().storeOptionsInstance(dbOptions);
 
     for (int i = 1; i < handles.length; i++) {
-      columnFamilyHandles.add(new ColumnFamilyHandle(otdb, handles[i]));
+      columnFamilyHandles.add(new ColumnFamilyHandle(otdb.getBaseDB(), handles[i]));
     }
 
     return otdb;
@@ -96,14 +100,14 @@ public class OptimisticTransactionDB extends RocksDB
 
   @Override
   public Transaction beginTransaction(final WriteOptions writeOptions) {
-    return new Transaction(this, beginTransaction(nativeHandle_,
+    return new Transaction(baseDB, beginTransaction(nativeHandle_,
         writeOptions.nativeHandle_));
   }
 
   @Override
   public Transaction beginTransaction(final WriteOptions writeOptions,
       final OptimisticTransactionOptions optimisticTransactionOptions) {
-    return new Transaction(this, beginTransaction(nativeHandle_,
+    return new Transaction(baseDB, beginTransaction(nativeHandle_,
         writeOptions.nativeHandle_,
         optimisticTransactionOptions.nativeHandle_));
   }
@@ -150,9 +154,15 @@ public class OptimisticTransactionDB extends RocksDB
    * @return The underlying database that was opened.
    */
   public RocksDB getBaseDB() {
-    final RocksDB db = new RocksDB(getBaseDB(nativeHandle_));
-    db.disOwnNativeHandle();
-    return db;
+    return baseDB;
+  }
+
+  @Override
+  protected void disposeInternal() {
+    // this.nativeHandle owns the baseDB.nativeHandle.
+    // And baseDB.nativeHandle will be destroyed when the this.nativeHandle is destroyed.
+    baseDB.disOwnNativeHandle();
+    super.disposeInternal();
   }
 
   protected static native long open(final long optionsHandle,
