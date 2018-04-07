@@ -277,6 +277,16 @@ add_jar(
   src/main/java/org/rocksdb/WriteBatchInterface.java
   src/main/java/org/rocksdb/WriteBatchWithIndex.java
   src/main/java/org/rocksdb/WriteOptions.java
+  src/main/java/org/rocksdb/TxnDBWritePolicy.java
+  src/main/java/org/rocksdb/TransactionalOptions.java
+  src/main/java/org/rocksdb/TransactionOptions.java
+  src/main/java/org/rocksdb/TransactionalDB.java
+  src/main/java/org/rocksdb/TransactionDB.java
+  src/main/java/org/rocksdb/OptimisticTransactionDB.java
+  src/main/java/org/rocksdb/AbstractTransactionNotifier.java
+  src/main/java/org/rocksdb/OptimisticTransactionOptions.java
+  src/main/java/org/rocksdb/Transaction.java
+  src/main/java/org/rocksdb/TransactionDBOptions.java
   src/test/java/org/rocksdb/BackupEngineTest.java
   src/test/java/org/rocksdb/IngestExternalFileOptionsTest.java
   src/test/java/org/rocksdb/NativeComparatorWrapperTest.java
