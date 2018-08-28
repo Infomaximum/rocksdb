@@ -17,6 +17,8 @@
 #include "rocksjni/portal.h"
 #include "rocksdb/utilities/backupable_db.h"
 
+#include "path_converter.h"
+
 ///////////////////////////////////////////////////////////////////////////
 // BackupDBOptions
 
@@ -27,13 +29,16 @@
  */
 jlong Java_org_rocksdb_BackupableDBOptions_newBackupableDBOptions(
     JNIEnv* env, jclass jcls, jstring jpath) {
-  const char* cpath = env->GetStringUTFChars(jpath, nullptr);
+
+  std::vector<char> buffer;
+  const char* cpath = GetUTFChars(env, jpath, buffer);
   if(cpath == nullptr) {
     // exception thrown: OutOfMemoryError
     return 0;
   }
+
   auto* bopt = new rocksdb::BackupableDBOptions(cpath);
-  env->ReleaseStringUTFChars(jpath, cpath);
+  ReleaseUTFChars(env, jpath, cpath);
   return reinterpret_cast<jlong>(bopt);
 }
 

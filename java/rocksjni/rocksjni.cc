@@ -23,6 +23,8 @@
 #include "rocksdb/types.h"
 #include "rocksjni/portal.h"
 
+#include "path_converter.h"
+
 #ifdef min
 #undef min
 #endif
@@ -33,7 +35,8 @@ jlong rocksdb_open_helper(JNIEnv* env, jlong jopt_handle, jstring jdb_path,
     std::function<rocksdb::Status(
       const rocksdb::Options&, const std::string&, rocksdb::DB**)> open_fn
     ) {
-  const char* db_path = env->GetStringUTFChars(jdb_path, nullptr);
+  std::vector<char> buffer;
+  const char* db_path = GetUTFChars(env, jdb_path, buffer);
   if(db_path == nullptr) {
     // exception thrown: OutOfMemoryError
     return 0;
@@ -43,7 +46,7 @@ jlong rocksdb_open_helper(JNIEnv* env, jlong jopt_handle, jstring jdb_path,
   rocksdb::DB* db = nullptr;
   rocksdb::Status s = open_fn(*opt, db_path, &db);
 
-  env->ReleaseStringUTFChars(jdb_path, db_path);
+  ReleaseUTFChars(env, jdb_path, db_path);
 
   if (s.ok()) {
     return reinterpret_cast<jlong>(db);
@@ -89,7 +92,8 @@ jlongArray rocksdb_open_helper(JNIEnv* env, jlong jopt_handle,
       std::vector<rocksdb::ColumnFamilyHandle*>*,
       rocksdb::DB**)> open_fn
     ) {
-  const char* db_path = env->GetStringUTFChars(jdb_path, nullptr);
+  std::vector<char> buffer;
+  const char* db_path = GetUTFChars(env, jdb_path, buffer);
   if(db_path == nullptr) {
     // exception thrown: OutOfMemoryError
     return nullptr;
@@ -99,7 +103,7 @@ jlongArray rocksdb_open_helper(JNIEnv* env, jlong jopt_handle,
   jlong* jco = env->GetLongArrayElements(jcolumn_options, nullptr);
   if(jco == nullptr) {
     // exception thrown: OutOfMemoryError
-    env->ReleaseStringUTFChars(jdb_path, db_path);
+    ReleaseUTFChars(env, jdb_path, db_path);
     return nullptr;
   }
 
@@ -123,7 +127,7 @@ jlongArray rocksdb_open_helper(JNIEnv* env, jlong jopt_handle,
 
   if(has_exception == JNI_TRUE) {
     // exception occurred
-    env->ReleaseStringUTFChars(jdb_path, db_path);
+    ReleaseUTFChars(env, jdb_path, db_path);
     return nullptr;
   }
 
@@ -134,7 +138,7 @@ jlongArray rocksdb_open_helper(JNIEnv* env, jlong jopt_handle,
       &handles, &db);
 
   // we have now finished with db_path
-  env->ReleaseStringUTFChars(jdb_path, db_path);
+  ReleaseUTFChars(env, jdb_path, db_path);
 
   // check if open operation was successful
   if (s.ok()) {
@@ -212,7 +216,8 @@ jlongArray Java_org_rocksdb_RocksDB_open__JLjava_lang_String_2_3_3B_3J(
 jobjectArray Java_org_rocksdb_RocksDB_listColumnFamilies(
     JNIEnv* env, jclass jclazz, jlong jopt_handle, jstring jdb_path) {
   std::vector<std::string> column_family_names;
-  const char* db_path = env->GetStringUTFChars(jdb_path, nullptr);
+  std::vector<char> buffer;
+  const char* db_path = GetUTFChars(env, jdb_path, buffer);
   if(db_path == nullptr) {
     // exception thrown: OutOfMemoryError
     return nullptr;
@@ -222,7 +227,7 @@ jobjectArray Java_org_rocksdb_RocksDB_listColumnFamilies(
   rocksdb::Status s = rocksdb::DB::ListColumnFamilies(*opt, db_path,
       &column_family_names);
 
-  env->ReleaseStringUTFChars(jdb_path, db_path);
+  ReleaseUTFChars(env, jdb_path, db_path);
 
   jobjectArray jcolumn_family_names =
       rocksdb::JniUtil::stringsBytes(env, column_family_names);
@@ -2204,7 +2209,8 @@ void Java_org_rocksdb_RocksDB_ingestExternalFile(
  */
 void Java_org_rocksdb_RocksDB_destroyDB(
     JNIEnv* env, jclass jcls, jstring jdb_path, jlong joptions_handle) {
-  const char* db_path = env->GetStringUTFChars(jdb_path, nullptr);
+  std::vector<char> buffer;
+  const char* db_path = GetUTFChars(env, jdb_path, buffer);
   if(db_path == nullptr) {
     // exception thrown: OutOfMemoryError
     return;
@@ -2217,7 +2223,7 @@ void Java_org_rocksdb_RocksDB_destroyDB(
   }
 
   rocksdb::Status s = rocksdb::DestroyDB(db_path, *options);
-  env->ReleaseStringUTFChars(jdb_path, db_path);
+  ReleaseUTFChars(env, jdb_path, db_path);
 
   if (!s.ok()) {
     rocksdb::RocksDBExceptionJni::ThrowNew(env, s);

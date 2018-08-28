@@ -17,6 +17,8 @@
 #include "rocksdb/sst_file_writer.h"
 #include "rocksjni/portal.h"
 
+#include "path_converter.h"
+
 /*
  * Class:     org_rocksdb_SstFileWriter
  * Method:    newSstFileWriter
@@ -76,14 +78,15 @@ jlong Java_org_rocksdb_SstFileWriter_newSstFileWriter__JJ(JNIEnv *env, jclass jc
  */
 void Java_org_rocksdb_SstFileWriter_open(JNIEnv *env, jobject jobj,
                                          jlong jhandle, jstring jfile_path) {
-  const char *file_path = env->GetStringUTFChars(jfile_path, nullptr);
+  std::vector<char> buffer;
+  const char *file_path = GetUTFChars(env, jfile_path, buffer);
   if(file_path == nullptr) {
     // exception thrown: OutOfMemoryError
     return;
   }
   rocksdb::Status s =
       reinterpret_cast<rocksdb::SstFileWriter *>(jhandle)->Open(file_path);
-  env->ReleaseStringUTFChars(jfile_path, file_path);
+  ReleaseUTFChars(env, jfile_path, file_path);
 
   if (!s.ok()) {
     rocksdb::RocksDBExceptionJni::ThrowNew(env, s);

@@ -15,6 +15,9 @@
 #include "rocksjni/portal.h"
 #include "rocksdb/db.h"
 #include "rocksdb/utilities/checkpoint.h"
+
+#include "path_converter.h"
+
 /*
  * Class:     org_rocksdb_Checkpoint
  * Method:    newCheckpoint
@@ -48,8 +51,9 @@ void Java_org_rocksdb_Checkpoint_disposeInternal(JNIEnv* env, jobject jobj,
 void Java_org_rocksdb_Checkpoint_createCheckpoint(
     JNIEnv* env, jobject jobj, jlong jcheckpoint_handle,
     jstring jcheckpoint_path) {
-  const char* checkpoint_path = env->GetStringUTFChars(
-      jcheckpoint_path, 0);
+
+  std::vector<char> buffer;
+  const char* checkpoint_path = GetUTFChars(env, jcheckpoint_path, buffer);
   if(checkpoint_path == nullptr) {
     // exception thrown: OutOfMemoryError
     return;
@@ -60,7 +64,7 @@ void Java_org_rocksdb_Checkpoint_createCheckpoint(
   rocksdb::Status s = checkpoint->CreateCheckpoint(
       checkpoint_path);
   
-  env->ReleaseStringUTFChars(jcheckpoint_path, checkpoint_path);
+  ReleaseUTFChars(env, jcheckpoint_path, checkpoint_path);
   
   if (!s.ok()) {
       rocksdb::RocksDBExceptionJni::ThrowNew(env, s);
