@@ -34,6 +34,8 @@
 #include "rocksjni/transaction_notifier_jnicallback.h"
 #include "rocksjni/writebatchhandlerjnicallback.h"
 
+#include "path_converter.h"
+
 // Remove macro on windows
 #ifdef DELETE
 #undef DELETE
@@ -383,7 +385,10 @@ class StatusJni : public RocksDBNativeClass<rocksdb::Status*, StatusJni> {
     jstring jstate = nullptr;
     if (status.getState() != nullptr) {
       const char* const state = status.getState();
-      jstate = env->NewStringUTF(state);
+
+	  std::vector<char> buffer;
+	  const char* utf8State = ConvertFromSystemEncodingToUtf8(state, buffer);
+      jstate = env->NewStringUTF(utf8State);
       if(env->ExceptionCheck()) {
         if(jstate != nullptr) {
           env->DeleteLocalRef(jstate);
