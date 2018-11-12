@@ -20,7 +20,7 @@ inline void ConvertUtf8ToAnsi(const char* src, std::vector<char>& dst)
 	dst.clear();
 	const size_t srcLen = strlen(src) + 1;
 
-	const int len1 = MultiByteToWideChar(CP_UTF8, 0, src, srcLen, NULL, 0);
+	const int len1 = MultiByteToWideChar(CP_UTF8, 0, src, static_cast<int>(srcLen), NULL, 0);
 	if (len1 <= 0)
 	{
 		CopyToBuffer(src, srcLen, dst);
@@ -28,14 +28,14 @@ inline void ConvertUtf8ToAnsi(const char* src, std::vector<char>& dst)
 	}
 
 	std::vector<WCHAR> utf16Buffer(len1);
-	int res = MultiByteToWideChar(CP_UTF8, 0, src, srcLen, &utf16Buffer[0], utf16Buffer.size());
+	int res = MultiByteToWideChar(CP_UTF8, 0, src, static_cast<int>(srcLen), &utf16Buffer[0], static_cast<int>(utf16Buffer.size()));
 	if (res <= 0)
 	{
 		CopyToBuffer(src, srcLen, dst);
 		return;
 	}
 
-	const int len2 = WideCharToMultiByte(CP_ACP, 0, &utf16Buffer[0], utf16Buffer.size(), NULL, 0, NULL, NULL);
+	const int len2 = WideCharToMultiByte(CP_ACP, 0, &utf16Buffer[0], static_cast<int>(utf16Buffer.size()), NULL, 0, NULL, NULL);
 	if (len2 <= 0)
 	{
 		CopyToBuffer(src, srcLen, dst);
@@ -45,7 +45,7 @@ inline void ConvertUtf8ToAnsi(const char* src, std::vector<char>& dst)
 	char lpDefaultChar = '_';
 	BOOL lpUsedDefaultChar = FALSE;
 	dst.resize(len2);
-	res = WideCharToMultiByte(CP_ACP, 0, &utf16Buffer[0], utf16Buffer.size(), &dst[0], dst.size(), &lpDefaultChar, &lpUsedDefaultChar);
+	res = WideCharToMultiByte(CP_ACP, 0, &utf16Buffer[0], static_cast<int>(utf16Buffer.size()), &dst[0], static_cast<int>(dst.size()), &lpDefaultChar, &lpUsedDefaultChar);
 	if (res <= 0 || lpUsedDefaultChar)
 	{
 		CopyToBuffer(src, srcLen, dst);
@@ -58,7 +58,7 @@ inline void ConvertAnsiToUtf8(const char* src, std::vector<char>& dst)
 	dst.clear();
 	const size_t srcLen = strlen(src) + 1;
 
-	const int len1 = MultiByteToWideChar(CP_ACP, 0, src, srcLen, NULL, 0);
+	const int len1 = MultiByteToWideChar(CP_ACP, 0, src, static_cast<int>(srcLen), NULL, 0);
 	if (len1 <= 0)
 	{
 		CopyToBuffer(src, srcLen, dst);
@@ -66,14 +66,14 @@ inline void ConvertAnsiToUtf8(const char* src, std::vector<char>& dst)
 	}
 
 	std::vector<WCHAR> utf16Buffer(len1);
-	int res = MultiByteToWideChar(CP_ACP, 0, src, srcLen, &utf16Buffer[0], utf16Buffer.size());
+	int res = MultiByteToWideChar(CP_ACP, 0, src, static_cast<int>(srcLen), &utf16Buffer[0], static_cast<int>(utf16Buffer.size()));
 	if (res <= 0)
 	{
 		CopyToBuffer(src, srcLen, dst);
 		return;
 	}
 
-	const int len2 = WideCharToMultiByte(CP_UTF8, 0, &utf16Buffer[0], utf16Buffer.size(), NULL, 0, NULL, NULL);
+	const int len2 = WideCharToMultiByte(CP_UTF8, 0, &utf16Buffer[0], static_cast<int>(utf16Buffer.size()), NULL, 0, NULL, NULL);
 	if (len2 <= 0)
 	{
 		CopyToBuffer(src, srcLen, dst);
@@ -81,7 +81,7 @@ inline void ConvertAnsiToUtf8(const char* src, std::vector<char>& dst)
 	}
 
 	dst.resize(len2);
-	res = WideCharToMultiByte(CP_UTF8, 0, &utf16Buffer[0], utf16Buffer.size(), &dst[0], dst.size(), NULL, NULL);
+	res = WideCharToMultiByte(CP_UTF8, 0, &utf16Buffer[0], static_cast<int>(utf16Buffer.size()), &dst[0], static_cast<int>(dst.size()), NULL, NULL);
 	if (res <= 0)
 	{
 		CopyToBuffer(src, srcLen, dst);
