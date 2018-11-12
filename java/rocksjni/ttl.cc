@@ -18,6 +18,8 @@
 #include "rocksdb/utilities/db_ttl.h"
 #include "rocksjni/portal.h"
 
+#include "path_converter.h"
+
 /*
  * Class:     org_rocksdb_TtlDB
  * Method:    open
@@ -26,7 +28,8 @@
 jlong Java_org_rocksdb_TtlDB_open(JNIEnv* env, jclass /*jcls*/,
                                   jlong joptions_handle, jstring jdb_path,
                                   jint jttl, jboolean jread_only) {
-  const char* db_path = env->GetStringUTFChars(jdb_path, nullptr);
+  std::vector<char> buffer;
+  const char* db_path = GetUTFChars(env, jdb_path, buffer);
   if (db_path == nullptr) {
     // exception thrown: OutOfMemoryError
     return 0;
@@ -36,7 +39,7 @@ jlong Java_org_rocksdb_TtlDB_open(JNIEnv* env, jclass /*jcls*/,
   rocksdb::DBWithTTL* db = nullptr;
   rocksdb::Status s =
       rocksdb::DBWithTTL::Open(*opt, db_path, &db, jttl, jread_only);
-  env->ReleaseStringUTFChars(jdb_path, db_path);
+  ReleaseUTFChars(env, jdb_path, db_path);
 
   // as TTLDB extends RocksDB on the java side, we can reuse
   // the RocksDB portal here.
@@ -58,7 +61,8 @@ jlongArray Java_org_rocksdb_TtlDB_openCF(JNIEnv* env, jclass /*jcls*/,
                                          jobjectArray jcolumn_names,
                                          jlongArray jcolumn_options,
                                          jintArray jttls, jboolean jread_only) {
-  const char* db_path = env->GetStringUTFChars(jdb_path, nullptr);
+  std::vector<char> buffer;
+  const char* db_path = GetUTFChars(env, jdb_path, buffer);
   if (db_path == nullptr) {
     // exception thrown: OutOfMemoryError
     return 0;
@@ -68,7 +72,7 @@ jlongArray Java_org_rocksdb_TtlDB_openCF(JNIEnv* env, jclass /*jcls*/,
   jlong* jco = env->GetLongArrayElements(jcolumn_options, nullptr);
   if (jco == nullptr) {
     // exception thrown: OutOfMemoryError
-    env->ReleaseStringUTFChars(jdb_path, db_path);
+	ReleaseUTFChars(env, jdb_path, db_path);
     return nullptr;
   }
 
@@ -91,7 +95,7 @@ jlongArray Java_org_rocksdb_TtlDB_openCF(JNIEnv* env, jclass /*jcls*/,
 
   if (has_exception == JNI_TRUE) {
     // exception occurred
-    env->ReleaseStringUTFChars(jdb_path, db_path);
+	ReleaseUTFChars(env, jdb_path, db_path);
     return nullptr;
   }
 
@@ -99,7 +103,7 @@ jlongArray Java_org_rocksdb_TtlDB_openCF(JNIEnv* env, jclass /*jcls*/,
   jint* jttlv = env->GetIntArrayElements(jttls, nullptr);
   if (jttlv == nullptr) {
     // exception thrown: OutOfMemoryError
-    env->ReleaseStringUTFChars(jdb_path, db_path);
+	ReleaseUTFChars(env, jdb_path, db_path);
     return nullptr;
   }
   const jsize len_ttls = env->GetArrayLength(jttls);
@@ -115,7 +119,7 @@ jlongArray Java_org_rocksdb_TtlDB_openCF(JNIEnv* env, jclass /*jcls*/,
       *opt, db_path, column_families, &handles, &db, ttl_values, jread_only);
 
   // we have now finished with db_path
-  env->ReleaseStringUTFChars(jdb_path, db_path);
+  ReleaseUTFChars(env, jdb_path, db_path);
 
   // check if open operation was successful
   if (s.ok()) {

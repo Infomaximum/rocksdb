@@ -13,6 +13,8 @@
 #include "rocksdb/utilities/backupable_db.h"
 #include "rocksjni/portal.h"
 
+#include "path_converter.h"
+
 /*
  * Class:     org_rocksdb_BackupEngine
  * Method:    open
@@ -191,15 +193,17 @@ void Java_org_rocksdb_BackupEngine_restoreDbFromBackup(
     JNIEnv* env, jobject /*jbe*/, jlong jbe_handle, jint jbackup_id,
     jstring jdb_dir, jstring jwal_dir, jlong jrestore_options_handle) {
   auto* backup_engine = reinterpret_cast<rocksdb::BackupEngine*>(jbe_handle);
-  const char* db_dir = env->GetStringUTFChars(jdb_dir, nullptr);
+  std::vector<char> dbDirBuffer;
+  const char* db_dir = GetUTFChars(env, jdb_dir, dbDirBuffer);
   if (db_dir == nullptr) {
     // exception thrown: OutOfMemoryError
     return;
   }
-  const char* wal_dir = env->GetStringUTFChars(jwal_dir, nullptr);
+  std::vector<char> walDirBuffer;
+  const char* wal_dir = GetUTFChars(env, jwal_dir, walDirBuffer);
   if (wal_dir == nullptr) {
     // exception thrown: OutOfMemoryError
-    env->ReleaseStringUTFChars(jdb_dir, db_dir);
+	ReleaseUTFChars(env, jdb_dir, db_dir);
     return;
   }
   auto* restore_options =
@@ -208,8 +212,8 @@ void Java_org_rocksdb_BackupEngine_restoreDbFromBackup(
       static_cast<rocksdb::BackupID>(jbackup_id), db_dir, wal_dir,
       *restore_options);
 
-  env->ReleaseStringUTFChars(jwal_dir, wal_dir);
-  env->ReleaseStringUTFChars(jdb_dir, db_dir);
+  ReleaseUTFChars(env, jwal_dir, wal_dir);
+  ReleaseUTFChars(env, jdb_dir, db_dir);
 
   if (status.ok()) {
     return;
@@ -227,15 +231,17 @@ void Java_org_rocksdb_BackupEngine_restoreDbFromLatestBackup(
     JNIEnv* env, jobject /*jbe*/, jlong jbe_handle, jstring jdb_dir,
     jstring jwal_dir, jlong jrestore_options_handle) {
   auto* backup_engine = reinterpret_cast<rocksdb::BackupEngine*>(jbe_handle);
-  const char* db_dir = env->GetStringUTFChars(jdb_dir, nullptr);
+  std::vector<char> dbDirBuffer;
+  const char* db_dir = GetUTFChars(env, jdb_dir, dbDirBuffer);
   if (db_dir == nullptr) {
     // exception thrown: OutOfMemoryError
     return;
   }
-  const char* wal_dir = env->GetStringUTFChars(jwal_dir, nullptr);
+  std::vector<char> walDirBuffer;
+  const char* wal_dir = GetUTFChars(env, jwal_dir, walDirBuffer);
   if (wal_dir == nullptr) {
     // exception thrown: OutOfMemoryError
-    env->ReleaseStringUTFChars(jdb_dir, db_dir);
+	ReleaseUTFChars(env, jdb_dir, db_dir);
     return;
   }
   auto* restore_options =
@@ -243,8 +249,8 @@ void Java_org_rocksdb_BackupEngine_restoreDbFromLatestBackup(
   auto status = backup_engine->RestoreDBFromLatestBackup(db_dir, wal_dir,
                                                          *restore_options);
 
-  env->ReleaseStringUTFChars(jwal_dir, wal_dir);
-  env->ReleaseStringUTFChars(jdb_dir, db_dir);
+  ReleaseUTFChars(env, jwal_dir, wal_dir);
+  ReleaseUTFChars(env, jdb_dir, db_dir);
 
   if (status.ok()) {
     return;

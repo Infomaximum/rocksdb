@@ -35,6 +35,8 @@
 #include "rocksdb/table.h"
 #include "utilities/merge_operators.h"
 
+#include "path_converter.h"
+
 /*
  * Class:     org_rocksdb_Options
  * Method:    newOptions
@@ -578,13 +580,14 @@ jstring Java_org_rocksdb_Options_dbLogDir(JNIEnv* env, jobject /*jobj*/,
  */
 void Java_org_rocksdb_Options_setDbLogDir(JNIEnv* env, jobject /*jobj*/,
                                           jlong jhandle, jstring jdb_log_dir) {
-  const char* log_dir = env->GetStringUTFChars(jdb_log_dir, nullptr);
+  std::vector<char> buffer;
+  const char* log_dir = GetUTFChars(env, jdb_log_dir, buffer);
   if (log_dir == nullptr) {
     // exception thrown: OutOfMemoryError
     return;
   }
   reinterpret_cast<rocksdb::Options*>(jhandle)->db_log_dir.assign(log_dir);
-  env->ReleaseStringUTFChars(jdb_log_dir, log_dir);
+  ReleaseUTFChars(env, jdb_log_dir, log_dir);
 }
 
 /*
@@ -605,13 +608,14 @@ jstring Java_org_rocksdb_Options_walDir(JNIEnv* env, jobject /*jobj*/,
  */
 void Java_org_rocksdb_Options_setWalDir(JNIEnv* env, jobject /*jobj*/,
                                         jlong jhandle, jstring jwal_dir) {
-  const char* wal_dir = env->GetStringUTFChars(jwal_dir, nullptr);
+  std::vector<char> buffer;
+  const char* wal_dir = GetUTFChars(env, jwal_dir, buffer);
   if (wal_dir == nullptr) {
     // exception thrown: OutOfMemoryError
     return;
   }
   reinterpret_cast<rocksdb::Options*>(jhandle)->wal_dir.assign(wal_dir);
-  env->ReleaseStringUTFChars(jwal_dir, wal_dir);
+  ReleaseUTFChars(env, jwal_dir, wal_dir);
 }
 
 /*
@@ -4891,14 +4895,15 @@ void Java_org_rocksdb_DBOptions_dbPaths(JNIEnv* env, jobject /*jobj*/,
 void Java_org_rocksdb_DBOptions_setDbLogDir(JNIEnv* env, jobject /*jobj*/,
                                             jlong jhandle,
                                             jstring jdb_log_dir) {
-  const char* log_dir = env->GetStringUTFChars(jdb_log_dir, nullptr);
+  std::vector<char> buffer;
+  const char* log_dir = GetUTFChars(env, jdb_log_dir, buffer);
   if (log_dir == nullptr) {
     // exception thrown: OutOfMemoryError
     return;
   }
 
   reinterpret_cast<rocksdb::DBOptions*>(jhandle)->db_log_dir.assign(log_dir);
-  env->ReleaseStringUTFChars(jdb_log_dir, log_dir);
+  ReleaseUTFChars(env, jdb_log_dir, log_dir);
 }
 
 /*
@@ -4919,9 +4924,10 @@ jstring Java_org_rocksdb_DBOptions_dbLogDir(JNIEnv* env, jobject /*jobj*/,
  */
 void Java_org_rocksdb_DBOptions_setWalDir(JNIEnv* env, jobject /*jobj*/,
                                           jlong jhandle, jstring jwal_dir) {
-  const char* wal_dir = env->GetStringUTFChars(jwal_dir, 0);
+  std::vector<char> buffer;
+  const char* wal_dir = GetUTFChars(env, jwal_dir, buffer);
   reinterpret_cast<rocksdb::DBOptions*>(jhandle)->wal_dir.assign(wal_dir);
-  env->ReleaseStringUTFChars(jwal_dir, wal_dir);
+  ReleaseUTFChars(env, jwal_dir, wal_dir);
 }
 
 /*
