@@ -6531,6 +6531,20 @@ jlong Java_org_rocksdb_ReadOptions_iterateUpperBound(JNIEnv* /*env*/,
   return reinterpret_cast<jlong>(upper_bound_slice_handle);
 }
 
+void Java_org_rocksdb_ReadOptions_setMaxSkippableInternalKeys(
+	JNIEnv* /*env*/, jobject /*jobj*/, jlong jhandle,
+	jlong max_skippable_internal_keys) {
+	reinterpret_cast<rocksdb::ReadOptions*>(jhandle)->max_skippable_internal_keys =
+		static_cast<uint16_t>(max_skippable_internal_keys);
+}
+
+jlong Java_org_rocksdb_ReadOptions_maxSkippableInternalKeys(JNIEnv* /*env*/,
+	jobject /*jobj*/,
+	jlong jhandle) {
+	auto* opt = reinterpret_cast<rocksdb::ReadOptions*>(jhandle);
+	return static_cast<jlong>(opt->max_skippable_internal_keys);
+}
+
 /////////////////////////////////////////////////////////////////////
 // rocksdb::ComparatorOptions
 

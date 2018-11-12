@@ -423,6 +423,36 @@ public class ReadOptions extends RocksObject {
     return null;
   }
 
+  /**
+   * A threshold for the number of keys that can be skipped before failing an
+   * iterator seek as incomplete. The default value of 0 should be used to
+   * never fail a request as incomplete, even on skipping too many keys.
+   *
+   * Default: 0
+   *
+   * @param maxSkippableInternalKeys number of keys
+   * @return the reference to the current ReadOptions.
+   */
+  public ReadOptions setMaxSkippableInternalKeys(long maxSkippableInternalKeys) {
+    assert(isOwningHandle());
+    setMaxSkippableInternalKeys(nativeHandle_, maxSkippableInternalKeys);
+    return this;
+  }
+
+  /**
+   * A threshold for the number of keys that can be skipped before failing an
+   * iterator seek as incomplete. The default value of 0 should be used to
+   * never fail a request as incomplete, even on skipping too many keys.
+   *
+   * Default: 0
+   *
+   * @return number of keys.
+   */
+  public long maxSkippableInternalKeys() {
+    assert(isOwningHandle());
+    return maxSkippableInternalKeys(nativeHandle_);
+  }
+
   // instance variables
   // NOTE: If you add new member variables, please update the copy constructor above!
   //
@@ -465,6 +495,9 @@ public class ReadOptions extends RocksObject {
   private native void setIterateUpperBound(final long handle,
       final long upperBoundSliceHandle);
   private native long iterateUpperBound(final long handle);
+
+  private native void setMaxSkippableInternalKeys(final long handle, final long maxSkippableInternalKeys);
+  private native long maxSkippableInternalKeys(final long handle);
 
   @Override protected final native void disposeInternal(final long handle);
 
