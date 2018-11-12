@@ -19,6 +19,10 @@ import java.util.List;
  */
 public class BackupEngine extends RocksObject implements AutoCloseable {
 
+  static {
+    RocksDB.loadLibrary();
+  }
+
   protected BackupEngine(final long nativeHandle) {
     super(nativeHandle);
   }
