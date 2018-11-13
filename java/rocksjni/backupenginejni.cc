@@ -171,7 +171,7 @@ void Java_org_rocksdb_BackupEngine_purgeOldBackups(JNIEnv* env, jobject /*jbe*/,
 * Signature: (JI)V
 */
 void Java_org_rocksdb_BackupEngine_verifyBackup(
-	JNIEnv* env, jobject jbe, jlong jbe_handle, jint jbackup_id) {
+    JNIEnv* env, jobject /*jbe*/, jlong jbe_handle, jint jbackup_id) {
 	auto* backup_engine = reinterpret_cast<rocksdb::BackupEngine*>(jbe_handle);
 	auto status =
 		backup_engine->VerifyBackup(static_cast<rocksdb::BackupID>(jbackup_id));
