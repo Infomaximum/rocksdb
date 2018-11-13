@@ -18,6 +18,10 @@ import java.io.File;
  */
 public class BackupableDBOptions extends RocksObject {
 
+  static {
+    RocksDB.loadLibrary();
+  }
+
   private Env backupEnv = null;
   private Logger infoLog = null;
   private RateLimiter backupRateLimiter = null;
