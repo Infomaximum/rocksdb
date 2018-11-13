@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#define DEF_UNUSED(x) (void)x;
+
 #if defined(_WIN32)
 #include <Windows.h>
 
@@ -104,6 +106,7 @@ inline const char* GetUTFChars(JNIEnv* env, jstring source, std::vector<char>& b
 	env->ReleaseStringUTFChars(source, utf8Str);
 	return &buffer[0];
 #else
+    DEF_UNUSED(buffer)
 	return env->GetStringUTFChars(source, nullptr);
 #endif
 }
